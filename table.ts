@@ -1,3 +1,5 @@
+import * as utils from "node_modules/utils/utils";
+
 export class Table {
 	private e: HTMLElement;
 	private header: HTMLElement;
@@ -79,7 +81,7 @@ class Row {
 		this.i = i;
 		this.cs = new Array();
 		this.fn = onClick;
-		
+
 		if (!!this.fn) {
 			this.e.addEventListener("click", this.fn);
 		}
@@ -92,10 +94,21 @@ class Row {
 		const cell = new Cell(this.e, kv, coords, col.Width());
 		this.cs.push(cell);
 	}
+
+	Clear() {
+		while (this.cs.length > 0) {
+			const c = this.cs.pop();
+			if (!c) {
+				continue;
+			}
+
+			c.Close();
+		}
+	}
 }
 
 export class Cell {
-	private e: HTMLElement;
+	private e: HTMLElement | null;
 	private kv: KeyValue;
 	private coords: Coords;
 	private width: number;
@@ -109,6 +122,15 @@ export class Cell {
 		this.e.textContent = this.kv.Key();
 		this.e.style.width = width + "px";
 		target.appendChild(this.e);
+	}
+
+	Close() {
+		if (this.e === null) {
+			return;
+		}
+
+		utils.RemoveElement(this.e);
+		this.e = null;
 	}
 }
 
