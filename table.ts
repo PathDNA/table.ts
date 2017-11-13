@@ -50,6 +50,17 @@ export class Table {
 
 		this.rows.push(r);
 	}
+
+	Clear() {
+		while (this.rows.length > 0) {
+			const r = this.rows.pop();
+			if (!r) {
+				continue;
+			}
+
+			r.Close();
+		}
+	}
 }
 
 export class Column {
@@ -71,7 +82,7 @@ export class Column {
 }
 
 class Row {
-	private e: HTMLElement;
+	private e: HTMLElement | null;
 	private i: number;
 	private cs: Cell[];
 	private fn: CallbackFn | null;
@@ -90,12 +101,20 @@ class Row {
 	}
 
 	Push(kv: KeyValue, col: Column) {
+		if (this.e === null) {
+			return;
+		}
+
 		const coords = new Coords(this.i, this.cs.length);
 		const cell = new Cell(this.e, kv, coords, col.Width());
 		this.cs.push(cell);
 	}
 
-	Clear() {
+	Close() {
+		if (this.e === null) {
+			return;
+		}
+
 		while (this.cs.length > 0) {
 			const c = this.cs.pop();
 			if (!c) {
@@ -104,6 +123,9 @@ class Row {
 
 			c.Close();
 		}
+
+		utils.RemoveElement(this.e);
+		this.e = null;
 	}
 }
 
